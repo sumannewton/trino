@@ -16,8 +16,12 @@ package io.trino.plugin.elasticsearch.client;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
@@ -41,6 +45,11 @@ public class IndexMetadata
         private final boolean isArray;
         private final String name;
         private final Type type;
+
+        public Field(boolean isArray, String name, Type type)
+        {
+            this(false, isArray, name, type);
+        }
 
         public Field(boolean asRawJson, boolean isArray, String name, Type type)
         {
@@ -71,6 +80,28 @@ public class IndexMetadata
         {
             return type;
         }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(asRawJson, isArray, name, type);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Field field = (Field) o;
+            return asRawJson == field.asRawJson &&
+                    isArray == field.isArray &&
+                    name.equals(field.name) &&
+                    type.equals(field.type);
+        }
     }
 
     public interface Type {}
@@ -89,6 +120,25 @@ public class IndexMetadata
         {
             return name;
         }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(name);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            PrimitiveType that = (PrimitiveType) o;
+            return name.equals(that.name);
+        }
     }
 
     public static class DateTimeType
@@ -100,12 +150,33 @@ public class IndexMetadata
         {
             requireNonNull(formats, "formats is null");
 
-            this.formats = ImmutableList.copyOf(formats);
+            this.formats = formats.stream().sorted().collect(toImmutableList());
         }
 
         public List<String> getFormats()
         {
             return formats;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(formats);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            DateTimeType that = (DateTimeType) o;
+            return this.formats.size() == that.formats.size()
+                    && this.formats.stream().collect(Collectors.toMap(Function.identity(), s -> 1L, Long::sum))
+                    .equals(that.formats.stream().collect(Collectors.toMap(Function.identity(), s -> 1L, Long::sum)));
         }
     }
 
@@ -140,6 +211,25 @@ public class IndexMetadata
         public double getScale()
         {
             return scale;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(scale);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            ScaledFloatType that = (ScaledFloatType) o;
+            return this.scale == that.scale;
         }
     }
 }

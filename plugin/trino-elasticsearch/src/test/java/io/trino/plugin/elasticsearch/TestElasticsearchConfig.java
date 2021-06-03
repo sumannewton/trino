@@ -56,7 +56,12 @@ public class TestElasticsearchConfig
                 .setTruststorePassword(null)
                 .setVerifyHostnames(true)
                 .setIgnorePublishAddress(false)
-                .setSecurity(null));
+                .setSecurity(null)
+                .setMergeIndicesSchemaForAlias(true)
+                .setMaxNumberOfIndicesForAliasSchema(0)
+                .setFailOnAliasSchemaMismatch(false)
+                .setIndexMetaDataCacheTtl(new Duration(1, MINUTES))
+                .setIndexMetaDataCacheMaximumSize(1000));
     }
 
     @Test
@@ -88,6 +93,11 @@ public class TestElasticsearchConfig
                 .put("elasticsearch.tls.verify-hostnames", "false")
                 .put("elasticsearch.ignore-publish-address", "true")
                 .put("elasticsearch.security", "AWS")
+                .put("elasticsearch.merge-alias-index-mappings", "false")
+                .put("elasticsearch.max-number-of-indices-for-alias-schema", "10")
+                .put("elasticsearch.fail-on-alias-schema-mismatch", "true")
+                .put("elasticsearch.index-metadata-cache-ttl", "10m")
+                .put("elasticsearch.index-metadata-cache-maximum-entries", "10000")
                 .build();
 
         ElasticsearchConfig expected = new ElasticsearchConfig()
@@ -111,7 +121,12 @@ public class TestElasticsearchConfig
                 .setTruststorePassword("truststore-password")
                 .setVerifyHostnames(false)
                 .setIgnorePublishAddress(true)
-                .setSecurity(AWS);
+                .setSecurity(AWS)
+                .setMergeIndicesSchemaForAlias(false)
+                .setMaxNumberOfIndicesForAliasSchema(10)
+                .setFailOnAliasSchemaMismatch(true)
+                .setIndexMetaDataCacheTtl(new Duration(10, MINUTES))
+                .setIndexMetaDataCacheMaximumSize(10000);
 
         assertFullMapping(properties, expected);
     }
