@@ -32,7 +32,7 @@ public class VarcharDecoder
     @Override
     public String convert(String path, Object value)
     {
-        if (value instanceof String || value instanceof Number) {
+        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
             return value.toString();
         }
         throw new TrinoException(TYPE_MISMATCH, format("Expected a string or numeric value for field '%s' of type VARCHAR: %s [%s]", path, value, value.getClass().getSimpleName()));

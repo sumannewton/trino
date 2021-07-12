@@ -125,6 +125,7 @@ public class ElasticsearchClient
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapperProvider().get();
 
     private static final Pattern ADDRESS_PATTERN = Pattern.compile("((?<cname>[^/]+)/)?(?<ip>.+):(?<port>\\d+)");
+    public static final String DATE_FORMATS_SEPARATOR = "\\|\\|";
 
     private final BackpressureRestHighLevelClient client;
     private final int scrollSize;
@@ -575,7 +576,7 @@ public class ElasticsearchClient
                 case "date":
                     List<String> formats = ImmutableList.of();
                     if (value.has("format")) {
-                        formats = Arrays.asList(value.get("format").asText().split("\\|\\|"));
+                        formats = Arrays.asList(value.get("format").asText().split(DATE_FORMATS_SEPARATOR));
                     }
                     result.add(new IndexMetadata.Field(isArray, name, new IndexMetadata.DateTimeType(formats)));
                     break;

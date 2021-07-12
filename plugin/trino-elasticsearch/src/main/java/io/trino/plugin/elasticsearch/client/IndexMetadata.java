@@ -14,15 +14,19 @@
 package io.trino.plugin.elasticsearch.client;
 
 import com.google.common.collect.ImmutableList;
+import io.trino.spi.TrinoException;
 import io.trino.spi.type.ArrayType;
 import io.trino.spi.type.RowType;
 import io.trino.spi.type.StandardTypes;
+import io.trino.spi.type.TimestampType;
 import io.trino.spi.type.Type;
 import io.trino.spi.type.TypeManager;
 import io.trino.spi.type.TypeSignature;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static io.trino.spi.StandardErrorCode.NOT_SUPPORTED;
 import static io.trino.spi.type.BigintType.BIGINT;
 import static io.trino.spi.type.BooleanType.BOOLEAN;
 import static io.trino.spi.type.DoubleType.DOUBLE;
@@ -30,9 +34,11 @@ import static io.trino.spi.type.IntegerType.INTEGER;
 import static io.trino.spi.type.RealType.REAL;
 import static io.trino.spi.type.SmallintType.SMALLINT;
 import static io.trino.spi.type.TimestampType.TIMESTAMP_MILLIS;
+import static io.trino.spi.type.TimestampType.TIMESTAMP_SECONDS;
 import static io.trino.spi.type.TinyintType.TINYINT;
 import static io.trino.spi.type.VarbinaryType.VARBINARY;
 import static io.trino.spi.type.VarcharType.VARCHAR;
+import static java.lang.String.format;
 import static java.util.Locale.ENGLISH;
 import static java.util.Objects.requireNonNull;
 
@@ -172,13 +178,13 @@ public class IndexMetadata
     public static class DateTimeType
             implements FieldType
     {
-        private final List<String> formats;
+        private final List<Format> formats;
 
         public DateTimeType(List<String> formats)
         {
             requireNonNull(formats, "formats is null");
 
-            this.formats = ImmutableList.copyOf(formats);
+            this.formats = formats.stream().map(Format::valueOf).collect(Collectors.toList());
         }
 
         @Override
@@ -188,6 +194,7 @@ public class IndexMetadata
             if (formats.isEmpty()) {
                 return TIMESTAMP_MILLIS;
             }
+
             return null;
         }
 
@@ -195,6 +202,28 @@ public class IndexMetadata
         public boolean supportsPredicates()
         {
             return true;
+        }
+
+        public enum Format {
+            EPOCH_MILLIS,
+            STRICT_DATE_OPTIONAL_TIME,
+            DATE_OPTIONAL_TIME,
+            EPOCH_SECOND;
+
+            public Type getType(Format format)
+            {
+                switch (format) {
+                    case STRICT_DATE_OPTIONAL_TIME:
+                    case DATE_OPTIONAL_TIME:
+                    case EPOCH_MILLIS:
+                        return TIMESTAMP_MILLIS;
+
+                    case EPOCH_SECOND:
+                        return TIMESTAMP_SECONDS;
+                }
+
+                throw new TrinoException(NOT_SUPPORTED, format("date format '%s' not supported", format.name()));
+            }
         }
     }
 
