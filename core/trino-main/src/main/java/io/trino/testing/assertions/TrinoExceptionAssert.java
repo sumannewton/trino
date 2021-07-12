@@ -29,11 +29,20 @@ public final class TrinoExceptionAssert
     @CheckReturnValue
     public static TrinoExceptionAssert assertTrinoExceptionThrownBy(ThrowingCallable throwingCallable)
     {
+        return assertTrinoExceptionThrownBy(throwingCallable, null);
+    }
+
+    @CheckReturnValue
+    public static TrinoExceptionAssert assertTrinoExceptionThrownBy(ThrowingCallable throwingCallable, String message)
+    {
         Throwable throwable = catchThrowable(throwingCallable);
         if (throwable == null) {
             failBecauseExceptionWasNotThrown(TrinoException.class);
         }
         assertThat(throwable).isInstanceOf(TrinoException.class);
+        if (message != null) {
+            assertThat(throwable).hasMessage(message);
+        }
         return new TrinoExceptionAssert((TrinoException) throwable);
     }
 

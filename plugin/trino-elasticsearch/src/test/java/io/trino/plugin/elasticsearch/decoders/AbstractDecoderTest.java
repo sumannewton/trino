@@ -1,16 +1,26 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.trino.plugin.elasticsearch.decoders;
 
-import io.trino.spi.TrinoException;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.trino.spi.block.BlockBuilder;
-import org.jetbrains.annotations.NotNull;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Locale;
 import java.util.function.Supplier;
 
-import static io.airlift.testing.Assertions.assertInstanceOf;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static io.trino.testing.assertions.TrinoExceptionAssert.assertTrinoExceptionThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -19,87 +29,52 @@ import static org.mockito.Mockito.when;
 
 public abstract class AbstractDecoderTest
 {
-    public static final String PATH = "test_column";
-    public BlockBuilder output;
-    public Supplier<Object> valueSupplier;
-    private AbstractDecoder decoder;
+    protected static final String PATH = "test_column";
+    protected BlockBuilder output;
+    protected Supplier<Object> valueSupplier;
+    protected AbstractDecoder decoder;
 
-    protected abstract AbstractDecoder createDecoder();
+    protected abstract String getParseFailureErrorMsg(Object value);
 
-    protected abstract Class<?> outputType();
+    protected abstract String getTypeMismatchErrorMsg(Object value);
 
-    protected boolean supportsString()
-    {
-        return true;
-    }
-
-    protected boolean supportsBoolean()
-    {
-        return true;
-    }
-
-    protected boolean supportsNumber()
-    {
-        return true;
-    }
-
-    protected final AbstractDecoder getDecoder()
-    {
-        return decoder;
-    }
-
-    @BeforeClass
-    public void init()
+    protected final void init()
     {
         output = mock(BlockBuilder.class);
         valueSupplier = mock(Supplier.class);
-        decoder = spy(createDecoder());
-
+        decoder = spy(decoder);
         when(output.appendNull()).thenReturn(output);
-        doNothing().when(decoder).write(any(BlockBuilder.class), any(Object.class));
+        doNothing().when(decoder).write(any(BlockBuilder.class), any());
     }
 
     @Test
-    public void testNullValue() {
+    public void testNullValue()
+    {
         when(valueSupplier.get()).thenReturn(null);
         decoder.decode("test_column", valueSupplier, output);
     }
 
     @Test
-    public void testIntegerValue() {
-        final Object number_value = 101;
-        when(valueSupplier.get()).thenReturn(number_value);
-        if (!supportsNumber()) {
-            assertThatThrownBy(() -> decoder.decode(PATH, valueSupplier, output))
-                    .hasMessage("Expected a boolean value for field %s of type %s: %s [Integer]", PATH, decoder.getType().toString().toUpperCase(), number_value)
-                    .isInstanceOf(TrinoException.class);
-        }
-        else {
-            assertInstanceOf(decoder.convert("test_column", valueSupplier.get()), outputType());
-            decoder.decode("test_column", valueSupplier, output);
-        }
+    public void testListValue()
+    {
+        convertAndAssertTypeMismatchThrowable(ImmutableList.of("val1", "val2"));
     }
 
     @Test
-    public void testBooleanValue() {
-        when(valueSupplier.get()).thenReturn(true);
-        if (!supportsBoolean()) {
-            assertThatThrownBy(() -> decoder.decode("test_column", valueSupplier, output)).isInstanceOf(TrinoException.class);
-        }
-        else {
-            assertInstanceOf(decoder.convert("test_column", valueSupplier.get()), outputType());
-            decoder.decode("test_column", valueSupplier, output);
-        }
-
-        when(valueSupplier.get()).thenReturn(false);
-        if (!supportsBoolean()) {
-            assertThatThrownBy(() -> decoder.decode("test_column", valueSupplier, output)).isInstanceOf(TrinoException.class);
-        }
-        else {
-            assertInstanceOf(decoder.convert("test_column", valueSupplier.get()), outputType());
-            decoder.decode("test_column", valueSupplier, output);
-        }
+    public void testMapValue()
+    {
+        convertAndAssertTypeMismatchThrowable(ImmutableMap.of("key1", "val1"));
     }
 
-//    protected abstract String getErrorMessage();
+    protected void convertAndAssertTypeMismatchThrowable(Object value)
+    {
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output), getTypeMismatchErrorMsg(value));
+    }
+
+    protected void convertAndAssertParseErrorThrowable(Object value)
+    {
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output), getParseFailureErrorMsg(value));
+    }
 }

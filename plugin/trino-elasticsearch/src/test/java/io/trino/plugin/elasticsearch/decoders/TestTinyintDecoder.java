@@ -16,29 +16,30 @@ package io.trino.plugin.elasticsearch.decoders;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static io.trino.testing.assertions.TrinoExceptionAssert.assertTrinoExceptionThrownBy;
 import static java.lang.String.format;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-public class TestBigintDecoder
+public class TestTinyintDecoder
         extends AbstractDecoderTest
 {
     @Override
     protected String getParseFailureErrorMsg(Object value)
     {
-        return format("Cannot parse value for field '%s' as BIGINT: %s", PATH, value);
+        return format("Cannot parse value for field '%s' as TINYINT: %s", PATH, value);
     }
 
     @Override
     protected String getTypeMismatchErrorMsg(Object value)
     {
-        return format("Expected a numeric value for field '%s' of type BIGINT: %s [%s]", PATH, value, value.getClass().getSimpleName());
+        return format("Expected a numeric value for field '%s' of type TINYINT: %s [%s]", PATH, value, value.getClass().getSimpleName());
     }
 
     @BeforeClass
     public void setUp()
     {
-        decoder = new BigintDecoder();
+        decoder = new TinyintDecoder();
         init();
     }
 
@@ -57,10 +58,26 @@ public class TestBigintDecoder
     }
 
     @Test
+    public void testOutOfRangeIntegerValue()
+    {
+        // positive integer
+        Integer value = 123456;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value));
+
+        // negative integer
+        value = -1 * value;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value));
+    }
+
+    @Test
     public void testLongValue()
     {
         // positive long
-        Long value = 123456789123456789L;
+        Long value = 123L;
         when(valueSupplier.get()).thenReturn(value);
         assertEquals(decoder.convert(PATH, valueSupplier.get()), value);
 
@@ -68,6 +85,22 @@ public class TestBigintDecoder
         value = -1 * value;
         when(valueSupplier.get()).thenReturn(value);
         assertEquals(decoder.convert(PATH, valueSupplier.get()), value);
+    }
+
+    @Test
+    public void testOutOfRangeLongValue()
+    {
+        // positive long
+        Long value = 123456789123456789L;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value));
+
+        // negative long
+        value = -1 * value;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value));
     }
 
     @Test
@@ -85,6 +118,22 @@ public class TestBigintDecoder
     }
 
     @Test
+    public void testOutOfRangeDoubleValue()
+    {
+        // positive double
+        Double value = 123456.123;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value.longValue()));
+
+        // negative double
+        value = -1 * value;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value.longValue()));
+    }
+
+    @Test
     public void testFloatValue()
     {
         // positive float
@@ -96,6 +145,22 @@ public class TestBigintDecoder
         value = -1 * value;
         when(valueSupplier.get()).thenReturn(value);
         assertEquals(decoder.convert(PATH, valueSupplier.get()), Long.valueOf(value.longValue()));
+    }
+
+    @Test
+    public void testOutOfRangeFloatValue()
+    {
+        // positive float
+        Float value = 123456.123f;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value.longValue()));
+
+        // negative float
+        value = -1 * value;
+        when(valueSupplier.get()).thenReturn(value);
+        assertTrinoExceptionThrownBy(() -> decoder.decode(PATH, valueSupplier, output),
+                format("Value out of range for field '%s' of type TINYINT: %s", PATH, value.longValue()));
     }
 
     @Test

@@ -42,7 +42,7 @@ public class DoubleDecoder
                 throw new TrinoException(TYPE_MISMATCH, format("Cannot parse value for field '%s' as DOUBLE: %s", path, value));
             }
         }
-        throw new TrinoException(TYPE_MISMATCH, format("Expected a numeric value for field %s of type DOUBLE: %s [%s]", path, value, value.getClass().getSimpleName()));
+        throw new TrinoException(TYPE_MISMATCH, format("Expected a numeric value for field '%s' of type DOUBLE: %s [%s]", path, value, value.getClass().getSimpleName()));
     }
 
     @Override

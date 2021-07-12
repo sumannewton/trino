@@ -23,9 +23,6 @@ import static java.util.Objects.requireNonNull;
 public abstract class AbstractDecoder<OutputType>
         implements Decoder
 {
-    public final String CONVERSION_ERROR_MESSAGE = "Cannot parse value for field '%s' as " + getType() + ": %s";
-    public final String TYPE_MISMATCH_ERROR_MESSAGE = "Expected a boolean value for field %s of type " + getType() + ": %s [%s]";
-
     Type type;
 
     public AbstractDecoder(Type type)

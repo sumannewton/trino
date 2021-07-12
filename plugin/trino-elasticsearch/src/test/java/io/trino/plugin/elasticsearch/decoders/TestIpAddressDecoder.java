@@ -16,67 +16,29 @@ package io.trino.plugin.elasticsearch.decoders;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static io.trino.testing.assertions.Assert.assertEquals;
+import static io.trino.type.IpAddressType.IPADDRESS;
 import static java.lang.String.format;
-import static org.mockito.Mockito.when;
 
-public class TestBooleanDecoder
+public class TestIpAddressDecoder
         extends AbstractDecoderTest
 {
     @Override
     protected String getParseFailureErrorMsg(Object value)
     {
-        return format("Cannot parse value for field '%s' as BOOLEAN: %s", PATH, value);
+        return null;
     }
 
     @Override
     protected String getTypeMismatchErrorMsg(Object value)
     {
-        return format("Expected a boolean value for field '%s' of type BOOLEAN: %s [%s]", PATH, value, value.getClass().getSimpleName());
+        return format("Expected a string value for field '%s' of type IP: %s [%s]", PATH, value, value.getClass().getSimpleName());
     }
 
     @BeforeClass
     public void setUp()
     {
-        decoder = new BooleanDecoder();
+        decoder = new IpAddressDecoder(IPADDRESS);
         init();
-    }
-
-    @Test
-    public void testBooleanValue()
-    {
-        // Test true
-        when(valueSupplier.get()).thenReturn(true);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), true);
-
-        // Test false
-        when(valueSupplier.get()).thenReturn(false);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), false);
-    }
-
-    @Test
-    public void testValidString()
-    {
-        String value = "true";
-        when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), true);
-
-        value = "false";
-        when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), false);
-    }
-
-    @Test
-    public void testEmptyString()
-    {
-        when(valueSupplier.get()).thenReturn("");
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), false);
-    }
-
-    @Test
-    public void testInvalidString()
-    {
-        convertAndAssertParseErrorThrowable("invalid");
     }
 
     @Test
@@ -126,4 +88,8 @@ public class TestBooleanDecoder
         value = -1 * value;
         convertAndAssertTypeMismatchThrowable(value);
     }
+
+    /*
+    TODO: Add unit tests for IpAddressDecoder
+     */
 }

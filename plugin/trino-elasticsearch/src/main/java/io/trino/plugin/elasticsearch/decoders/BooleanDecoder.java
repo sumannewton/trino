@@ -23,7 +23,6 @@ import static java.lang.String.format;
 public class BooleanDecoder
         extends AbstractDecoder<Boolean>
 {
-
     public BooleanDecoder()
     {
         super(BOOLEAN);
@@ -42,9 +41,9 @@ public class BooleanDecoder
             if (value.equals("false") || value.equals("")) {
                 return Boolean.FALSE;
             }
-            throw new TrinoException(TYPE_MISMATCH, format(CONVERSION_ERROR_MESSAGE, path, value));
+            throw new TrinoException(TYPE_MISMATCH, format("Cannot parse value for field '%s' as BOOLEAN: %s", path, value));
         }
-        throw new TrinoException(TYPE_MISMATCH, format("Expected a boolean value for field %s of type BOOLEAN: %s [%s]", path, value, value.getClass().getSimpleName()));
+        throw new TrinoException(TYPE_MISMATCH, format("Expected a boolean value for field '%s' of type BOOLEAN: %s [%s]", path, value, value.getClass().getSimpleName()));
     }
 
     @Override

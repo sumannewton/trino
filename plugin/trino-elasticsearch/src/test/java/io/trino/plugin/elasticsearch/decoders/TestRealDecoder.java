@@ -20,42 +20,26 @@ import static java.lang.String.format;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
-public class TestVarcharDecoder
+public class TestRealDecoder
         extends AbstractDecoderTest
 {
     @Override
     protected String getParseFailureErrorMsg(Object value)
     {
-        return null;
+        return format("Cannot parse value for field '%s' as REAL: %s", PATH, value);
     }
 
     @Override
     protected String getTypeMismatchErrorMsg(Object value)
     {
-        return format("Expected a string or numeric value for field '%s' of type VARCHAR: %s [%s]", PATH, value, value.getClass().getSimpleName());
+        return format("Expected a numeric value for field '%s' of type REAL: %s [%s]", PATH, value, value.getClass().getSimpleName());
     }
 
     @BeforeClass
     public void setUp()
     {
-        decoder = new VarcharDecoder();
+        decoder = new RealDecoder();
         init();
-    }
-
-    @Test
-    public void testValidStringValue()
-    {
-        final String value = "valid_string";
-        when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), value);
-    }
-
-    @Test
-    public void testEmptyStringValue()
-    {
-        final String value = "";
-        when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), value);
     }
 
     @Test
@@ -64,26 +48,26 @@ public class TestVarcharDecoder
         // positive integer
         Integer value = 101;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value.floatValue());
 
         // negative integer
         value = -1 * value;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value.floatValue());
     }
 
     @Test
     public void testLongValue()
     {
         // positive long
-        Long value = 123456789123456789L;
+        Long value = 123L;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value.floatValue());
 
         // negative long
         value = -1 * value;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value.floatValue());
     }
 
     @Test
@@ -92,12 +76,12 @@ public class TestVarcharDecoder
         // positive double
         Double value = 123.123;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value.floatValue());
 
         // negative double
         value = -1 * value;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value.floatValue());
     }
 
     @Test
@@ -106,23 +90,25 @@ public class TestVarcharDecoder
         // positive float
         Float value = 123.123f;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value);
 
         // negative float
         value = -1 * value;
         when(valueSupplier.get()).thenReturn(value);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(value));
+        assertEquals(decoder.convert(PATH, valueSupplier.get()), value);
+    }
+
+    @Test
+    public void testInvalidStringValue()
+    {
+        convertAndAssertParseErrorThrowable("invalid");
+        convertAndAssertParseErrorThrowable("");
     }
 
     @Test
     public void testBooleanValue()
     {
-        // Test true
-        when(valueSupplier.get()).thenReturn(true);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(true));
-
-        // Test false
-        when(valueSupplier.get()).thenReturn(false);
-        assertEquals(decoder.convert(PATH, valueSupplier.get()), String.valueOf(false));
+        convertAndAssertTypeMismatchThrowable(true);
+        convertAndAssertTypeMismatchThrowable(false);
     }
 }

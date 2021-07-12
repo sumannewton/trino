@@ -13,6 +13,7 @@
  */
 package io.trino.plugin.elasticsearch.decoders;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.InetAddresses;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
@@ -52,6 +53,7 @@ public class IpAddressDecoder
     }
 
     // This is a copy of IpAddressOperators.castFromVarcharToIpAddress method
+    @VisibleForTesting
     private Slice castToIpAddress(Slice slice)
     {
         byte[] address;

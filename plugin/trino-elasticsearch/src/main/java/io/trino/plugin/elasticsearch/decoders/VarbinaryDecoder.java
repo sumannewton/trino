@@ -13,12 +13,12 @@
  */
 package io.trino.plugin.elasticsearch.decoders;
 
-import io.airlift.slice.Slices;
 import io.trino.spi.TrinoException;
 import io.trino.spi.block.BlockBuilder;
 
 import java.util.Base64;
 
+import static io.airlift.slice.Slices.wrappedBuffer;
 import static io.trino.spi.StandardErrorCode.TYPE_MISMATCH;
 import static io.trino.spi.type.VarbinaryType.VARBINARY;
 import static java.lang.String.format;
@@ -43,6 +43,6 @@ public class VarbinaryDecoder
     @Override
     public void write(BlockBuilder output, String value)
     {
-        VARBINARY.writeSlice(output, Slices.wrappedBuffer(Base64.getDecoder().decode(value)));
+        VARBINARY.writeSlice(output, wrappedBuffer(Base64.getDecoder().decode(value)));
     }
 }
