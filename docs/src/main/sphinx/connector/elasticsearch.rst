@@ -122,26 +122,42 @@ queries.
 ``elasticsearch.union-schema-indices-for-alias``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Enable or disable merging of schemas of indices for governing the schema of an alias. If disabled, schema of the alias follows the schema of first index.
-Same field with different data types in different indices, for an alias, will cast as `text`_ by default.
+Enable or disable merging of schemas of indices for governing the schema of an alias.
+If disabled, schema of the alias follows the schema of first index only.
+Same field with different data types in different indices, for an alias, will cast as json_.
 
-This property is optional; the default is ``false``.
+This property is optional; the default value is ``false``.
+
+.. _json: raw-json-transform
 
 ``elasticsearch.fail-on-alias-schema-mismatch``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Enable or disable to fail the query if same field from different indices, for an alias, have different data types.
 
-This property is optional; the default is ``false`` i.e., cast mismatch column as `text`_.
+This property is optional; the default value is ``false`` i.e., cast mismatch column as `raw json`_.
 
-.. _text: https://www.elastic.co/guide/en/elasticsearch/reference/current/text.html
+.. _raw json: raw-json-transform
+
+
+``elasticsearch.datatype-for-alias-schema-mismatch``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Elasticsearch datatype to be used for datatype mismatch fields(i.e., same field from
+different indices, for an alias, have different data types).
+
+This property is optional; the default value is ``null`` i.e., cast mismatch column as `raw json`_.
+
+.. _raw json: raw-json-transform
+
 
 ``elasticsearch.max-number-of-indices-for-alias-schema``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Maximum number of indices to consider for merging to govern the schema of an alias. Gets into effect if ``elasticsearch.union-schema-indices-for-alias`` is ``true``.
+Maximum number of indices to consider for merging to govern the schema of an alias.
+This property will be used only if ``elasticsearch.union-schema-indices-for-alias`` is ``true``.
 
-This property is optional; the default is ``0`` i.e., merges all schemas to govern schema of an alias.
+This property is optional; the default value is ``0`` i.e., merges all schemas to govern schema of an alias.
 
 TLS security
 ------------
