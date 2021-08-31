@@ -124,7 +124,7 @@ queries.
 
 Enable or disable merging of schemas of indices for governing the schema of an alias.
 If disabled, schema of the alias follows the schema of first index only.
-Same field with different data types in different indices, for an alias, will cast as :ref:`raw-json-transform:json`.
+Same field with different data types in different indices, for an alias, will cast as :ref:`raw-json-transform`.
 
 This property is optional; the default value is ``false``.
 
