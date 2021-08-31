@@ -124,11 +124,9 @@ queries.
 
 Enable or disable merging of schemas of indices for governing the schema of an alias.
 If disabled, schema of the alias follows the schema of first index only.
-Same field with different data types in different indices, for an alias, will cast as :ref:`raw-json-transform`.
+Same field with different data types in different indices for an alias casts as :ref:`raw JSON <elasticsearch-raw-json-transform>`.
 
 This property is optional; the default value is ``false``.
-
-.. _json: raw-json-transform
 
 ``elasticsearch.fail-on-alias-schema-mismatch``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -286,6 +284,7 @@ not supported. Dates with the `format`_ property are ignored.
 .. _custom date formats: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html#custom-date-formats
 .. _format: https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-date-format.html#mapping-date-format
 
+.. _elasticsearch-raw-json-transform:
 
 Raw JSON transform
 ^^^^^^^^^^^^^^^^^^
