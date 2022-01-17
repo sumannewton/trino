@@ -99,6 +99,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -417,11 +418,6 @@ public class ElasticsearchClient
                 throw new CertificateNotYetValidException("KeyStore certificate is not yet valid: " + e.getMessage());
             }
         }
-    }
-
-    private static String getFlattenedKey(String parent, String child)
-    {
-        return format("%s.%s", parent, child);
     }
 
     private static CacheBuilder<Object, Object> newCacheBuilder(OptionalLong expiresAfterWriteMillis, long maximumSize)

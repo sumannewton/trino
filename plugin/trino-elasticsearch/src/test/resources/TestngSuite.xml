@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Default Suite">
+  <test thread-count="5" name="trino-root">
+    <classes>
+      <class name="io.trino.plugin.elasticsearch.TestElasticsearch6ConnectorTest">
+        <methods>
+          <include name="testDescribeMultiIndexAlias"/>
+          <include name="testDescribeMultiIndexAliasWithLimit"/>
+          <include name="testMultiIndexAliasCastAsRawJsonOnTypeMismatchWithNonPrimitiveFields"/>
+          <include name="testMultiIndexAliasCastAsRawJsonOnTypeMismatchWithPrimitiveFields"/>
+          <include name="testMultiIndexAliasFailOnTypeMismatch"/>
+          <include name="testSelectMultiIndexAliasWithNonPrimitiveFields"/>
+          <include name="testSelectMultiIndexAliasWithPrimitiveFields"/>
+        </methods>
+      </class> <!-- io.trino.plugin.elasticsearch.TestElasticsearch6ConnectorTest -->
+    </classes>
+  </test> <!-- trino-root -->
+</suite> <!-- Default Suite -->
